@@ -10,10 +10,19 @@ import VideoGrid, { VideoSkeletonGrid } from "@/components/videos/VideoGrid";
 import ShowCard from "@/components/shows/ShowCard";
 import NewsletterForm from "@/components/common/NewsletterForm";
 import JourneyRail from "@/components/hero/JourneyRail";
+import MeetSamay from "@/components/hero/MeetSamay";
 import { getLatestVideos } from "@/lib/youtube";
 import { getSiteContent, getUpcomingShows } from "@/lib/data";
 import { milestones } from "@/data/journey";
+import fs from "node:fs";
+import path from "node:path";
 import { LINKS } from "@/lib/site";
+
+// Real hero photo: Admin → Homepage → Hero portrait, or drop public/images/hero.png|webp|jpg
+// (a transparent-background cut-out looks best). Otherwise the mascot is shown.
+const HERO_FILE = ["hero.png", "hero.webp", "hero.jpg", "hero.jpeg"].find((f) =>
+  fs.existsSync(path.join(process.cwd(), "public", "images", f))
+);
 
 export const revalidate = 1800;
 
@@ -43,12 +52,15 @@ async function UpcomingShows() {
 }
 
 export default async function Home() {
-  const content = await getSiteContent();
+  const site = await getSiteContent();
+  const content = { ...site, heroImage: site.heroImage || (HERO_FILE ? `/images/${HERO_FILE}` : "") };
   return (
     <>
       <Hero content={content} />
 
       <Marquee items={["Comedy", "Chaos", "Chess", "Still Alive", "India's Got Latent", "Samay Raina Live"]} />
+
+      <MeetSamay />
 
       {/* Latest videos */}
       <section id="latest" className="container-x py-20 md:py-24 scroll-mt-24">

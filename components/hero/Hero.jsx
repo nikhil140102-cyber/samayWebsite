@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
@@ -33,6 +34,49 @@ function SplitWords({ text, accentLast = false }) {
       <span className={`reveal-word ${accentLast && i === words.length - 1 ? "text-accent" : ""}`}>{w}</span>
     </span>
   ));
+}
+
+/** Original mascot (chess-pawn comedian), floating with mouse parallax. */
+function HeroCharacter({ src = "/images/hero-character.webp", alt = "SR Fan World mascot: a chess-pawn comedian with a microphone", unoptimized = false }) {
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const x = useSpring(useTransform(mx, [-1, 1], [-18, 18]), { stiffness: 60, damping: 18 });
+  const y = useSpring(useTransform(my, [-1, 1], [-12, 12]), { stiffness: 60, damping: 18 });
+  const rotate = useSpring(useTransform(mx, [-1, 1], [-4, 4]), { stiffness: 60, damping: 18 });
+
+  useEffect(() => {
+    const onMove = (e) => {
+      mx.set((e.clientX / window.innerWidth) * 2 - 1);
+      my.set((e.clientY / window.innerHeight) * 2 - 1);
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
+  }, [mx, my]);
+
+  return (
+    <div className="pointer-events-none absolute bottom-[3%] right-[-10%] h-[36%] w-[55%] sm:right-0 sm:h-[48%] md:bottom-[6%] md:right-[4%] md:h-[78%] md:w-[48%]">
+      {/* stage glow + floor shadow */}
+      <div className="absolute left-1/2 top-[38%] h-[70%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(255,46,63,.45),transparent)] blur-2xl" />
+      <div className="absolute bottom-[2%] left-1/2 h-[6%] w-[46%] -translate-x-1/2 rounded-[50%] bg-black/50 blur-xl dark:bg-black/80" />
+      <motion.div style={{ x, y, rotate }} className="relative h-full w-full">
+        <motion.div
+          className="relative h-full w-full"
+          animate={{ y: [0, -14, 0] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            priority
+            unoptimized={unoptimized}
+            sizes="(min-width:768px) 45vw, 70vw"
+            className="object-contain object-bottom drop-shadow-[0_30px_40px_rgba(0,0,0,.55)]"
+          />
+        </motion.div>
+      </motion.div>
+    </div>
+  );
 }
 
 export default function Hero({ content }) {
@@ -104,22 +148,12 @@ export default function Hero({ content }) {
 
       {/* 3D scene or licensed portrait */}
       <div className="hero-scene absolute inset-0 opacity-60 md:opacity-100 md:left-[38%]">
+        {webgl && <HeroScene dark={isDark} compact={compact} showMic={false} />}
         {content.heroImage ? (
-          <div className="absolute inset-y-0 right-0 w-full md:w-[60%]">
-            <Image
-              src={content.heroImage}
-              alt="Samay Raina"
-              fill
-              priority
-              sizes="(min-width: 768px) 60vw, 100vw"
-              className="object-cover object-top opacity-90 [mask-image:linear-gradient(to_left,black_55%,transparent)]"
-            />
-          </div>
-        ) : webgl ? (
-          <HeroScene dark={isDark} compact={compact} />
-        ) : webgl === false ? (
-          <div className="absolute right-[10%] top-1/3 h-72 w-72 rounded-full bg-accent/30 blur-3xl" />
-        ) : null}
+          <HeroCharacter src={content.heroImage} alt="Samay Raina" unoptimized={content.heroImage.startsWith("data:")} />
+        ) : (
+          <HeroCharacter />
+        )}
       </div>
 
       <div className="container-x relative z-10 flex min-h-[86svh] flex-col justify-end pb-14 pt-32 md:justify-center md:pb-16">

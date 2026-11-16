@@ -117,7 +117,7 @@ function Rig({ children, reduced }) {
   return <group ref={group}>{children}</group>;
 }
 
-export default function HeroScene({ dark = true, compact = false }) {
+export default function HeroScene({ dark = true, compact = false, showMic = true }) {
   const wrap = useRef(null);
   const [visible, setVisible] = useState(true);
   const [dpr, setDpr] = useState(1.5);
@@ -148,11 +148,13 @@ export default function HeroScene({ dark = true, compact = false }) {
         <pointLight position={[2.5, 1, -2]} intensity={dark ? 18 : 6} color="#ff6b6b" />
 
         <Rig reduced={reduced}>
+          {showMic && (
           <Float speed={1.4 * speed} rotationIntensity={0.35} floatIntensity={0.8}>
             <group position={compact ? [0.75, -0.55, -0.5] : [0.55, 0.3, 0]} rotation={[0.12, 0, -0.32]} scale={compact ? 0.62 : 0.95}>
               <Microphone dark={dark} />
             </group>
           </Float>
+          )}
           {!compact && (
             <>
               <Float speed={2 * speed} rotationIntensity={1.2} floatIntensity={1.4}>

@@ -21,20 +21,28 @@ const toFormValue = (f, v) => {
   return v;
 };
 
-/** Reads an image file, centre-crops it square and resizes to 320px WebP (data URL). */
-function fileToSquareWebp(file, size = 320) {
+/** Reads an image file → WebP data URL. square: centre-crop to size×size (logo);
+ *  otherwise keep the shape (and transparency), longest side ≤ size (portrait). */
+function fileToWebp(file, { square = true, size = 320 } = {}) {
   return new Promise((resolve, reject) => {
     const img = new window.Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
-      const s = Math.min(img.naturalWidth, img.naturalHeight);
       const c = document.createElement("canvas");
-      c.width = c.height = size;
       const ctx = c.getContext("2d");
       ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, size, size);
+      if (square) {
+        const s = Math.min(img.naturalWidth, img.naturalHeight);
+        c.width = c.height = size;
+        ctx.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, size, size);
+      } else {
+        const k = Math.min(1, size / Math.max(img.naturalWidth, img.naturalHeight));
+        c.width = Math.round(img.naturalWidth * k);
+        c.height = Math.round(img.naturalHeight * k);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+      }
       URL.revokeObjectURL(url);
-      resolve(c.toDataURL("image/webp", 0.9));
+      resolve(c.toDataURL("image/webp", square ? 0.9 : 0.86));
     };
     img.onerror = () => reject(new Error("Could not read that image"));
     img.src = url;
@@ -50,7 +58,7 @@ function ImageField({ f, value, onChange }) {
     if (!/^image\/(png|jpeg|webp)$/.test(file.type)) return setErr("Use a PNG, JPG or WebP image.");
     setErr("");
     try {
-      onChange(f.name, await fileToSquareWebp(file));
+      onChange(f.name, await fileToWebp(file, f.square ? { square: true, size: 320 } : { square: false, size: 1100 }));
     } catch (x) {
       setErr(x.message);
     }
@@ -60,10 +68,10 @@ function ImageField({ f, value, onChange }) {
     <div className="sm:col-span-2">
       <span className="label">{f.label}</span>
       <div className="flex flex-wrap items-center gap-5 rounded-2xl border border-line bg-surface-2 p-4">
-        <span className="relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-accent font-display text-xl font-bold text-white ring-2 ring-accent ring-offset-2 ring-offset-[var(--surface-2)]">
+        <span className={`relative grid shrink-0 place-items-center overflow-hidden bg-accent font-display text-xl font-bold text-white ring-2 ring-accent ring-offset-2 ring-offset-[var(--surface-2)] ${f.square ? "h-20 w-20 rounded-full" : "h-28 w-20 rounded-xl bg-[#111]"}`}>
           {value ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={value} alt="Logo preview" className="h-full w-full object-cover" />
+            <img src={value} alt="Preview" className={`h-full w-full ${f.square ? "object-cover" : "object-contain"}`} />
           ) : (
             "SR"
           )}
@@ -88,7 +96,9 @@ function ImageField({ f, value, onChange }) {
             onChange={(e) => onChange(f.name, e.target.value)}
           />
           <p className="text-xs text-muted">
-            Square images work best. Uploads are cropped to a centred square and resized to 320 px automatically.
+            {f.square
+              ? "Square images work best. Uploads are cropped to a centred square and resized to 320 px automatically."
+              : "Use a tall photo; a transparent-background PNG cut-out looks best. Resized to 1100 px automatically."}
             Click <strong>Save</strong> below to publish.
           </p>
           {err && <p role="alert" className="text-xs text-accent">{err}</p>}
