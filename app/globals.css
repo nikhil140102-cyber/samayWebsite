@@ -1,0 +1,283 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Design tokens ---------- */
+:root {
+  /* font stacks (declared here because @theme inline does not emit variables) */
+  --font-display: "Space Grotesk Variable", "Inter Variable", sans-serif;
+  --font-sora: "Sora Variable", "Inter Variable", sans-serif;
+  --font-serif: "Playfair Display Variable", Georgia, serif;
+  --font-body: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --bg: #f6f4f0;
+  --bg-soft: #ecebe7;
+  --surface: #ffffff;
+  --surface-2: #f1efea;
+  --line: rgba(10, 10, 10, 0.1);
+  --fg: #0b0b0b;
+  --fg-muted: #57534e;
+  --accent: #e11d2e;
+  --accent-soft: rgba(225, 29, 46, 0.12);
+  --glass: rgba(255, 255, 255, 0.65);
+  --shadow: 0 20px 60px -25px rgba(20, 10, 10, 0.25);
+}
+
+.dark {
+  --bg: #050505;
+  --bg-soft: #0d0d0e;
+  --surface: #121214;
+  --surface-2: #1a1a1d;
+  --line: rgba(255, 255, 255, 0.09);
+  --fg: #f5f5f4;
+  --fg-muted: #a8a29e;
+  --accent: #ff2e3f;
+  --accent-soft: rgba(255, 46, 63, 0.14);
+  --glass: rgba(18, 18, 20, 0.6);
+  --shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-soft: var(--bg-soft);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-glass: var(--glass);
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk Variable", "Inter Variable", sans-serif;
+  --font-sora: "Sora Variable", "Inter Variable", sans-serif;
+  --font-serif: "Playfair Display Variable", Georgia, serif;
+  --shadow-soft: var(--shadow);
+}
+
+/* ---------- Base ---------- */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------- Utilities ---------- */
+@utility container-x {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: clamp(1.1rem, 4vw, 2.5rem);
+}
+@utility eyebrow {
+  font-family: var(--font-sora);
+  font-size: 0.66rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+@utility display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+}
+@utility glass {
+  background: var(--glass);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--line);
+}
+@utility card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 1.5rem;
+}
+@utility text-gradient {
+  background: linear-gradient(100deg, var(--fg) 30%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility grain {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@layer components {
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border-radius: 999px;
+  padding: 0.72rem 1.2rem;
+  font-family: var(--font-sora);
+  font-weight: 600;
+  font-size: 0.82rem;
+  transition: transform 0.25s ease, background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  will-change: transform;
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 12px 40px -12px var(--accent);
+}
+.btn-primary:hover {
+  box-shadow: 0 18px 50px -12px var(--accent);
+}
+.btn-ghost {
+  border: 1px solid var(--line);
+  color: var(--fg);
+  background: transparent;
+}
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  padding: 0.7rem 0.95rem;
+  color: var(--fg);
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: var(--fg-muted);
+  letter-spacing: 0.04em;
+}
+}
+
+/* Footer wordmark — glows on hover */
+.footer-wordmark {
+  color: color-mix(in srgb, var(--fg) 6%, transparent);
+  transition: color 0.5s ease, text-shadow 0.5s ease;
+}
+.footer-wordmark:hover {
+  color: var(--accent);
+  text-shadow: 0 0 18px var(--accent), 0 0 48px var(--accent), 0 0 110px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* Small nimbu-mirchi in the header: gentle pendulum swing */
+@keyframes nimbu-swing {
+  0%, 100% { transform: rotate(5deg); }
+  50% { transform: rotate(-5deg); }
+}
+.nimbu-swing {
+  transform-origin: 50% 0%;
+  animation: nimbu-swing 3.2s ease-in-out infinite;
+}
+
+/* Marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 38s linear infinite;
+}
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  animation: shimmer 1.4s infinite;
+}
+
+/* Hero word reveal (initial state before GSAP runs) */
+.reveal-word {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Prose for legal pages */
+.prose-legal h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 2.5rem 0 0.75rem;
+}
+.prose-legal p,
+.prose-legal li {
+  color: var(--fg-muted);
+  line-height: 1.8;
+}
+.prose-legal ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+.prose-legal a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .marquee-track {
+    animation: none;
+  }
+}
