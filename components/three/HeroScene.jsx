@@ -117,7 +117,7 @@ function Rig({ children, reduced }) {
   return <group ref={group}>{children}</group>;
 }
 
-export default function HeroScene({ dark = true, compact = false, showMic = true }) {
+export default function HeroScene({ dark = true, compact = false, showMic = true, sidePawn = true }) {
   const wrap = useRef(null);
   const [visible, setVisible] = useState(true);
   const [dpr, setDpr] = useState(1.5);
@@ -160,9 +160,11 @@ export default function HeroScene({ dark = true, compact = false, showMic = true
               <Float speed={2 * speed} rotationIntensity={1.2} floatIntensity={1.4}>
                 <Pawn position={[-0.35, -1.75, -0.8]} rotation={[0.4, 0, 0.5]} scale={0.45} />
               </Float>
+              {sidePawn && (
               <Float speed={1.6 * speed} rotationIntensity={1} floatIntensity={1.2}>
                 <Pawn color={dark ? "#e8e8ec" : "#1a1a1d"} position={[2.6, -1.0, -1.4]} rotation={[-0.3, 0, -0.6]} scale={0.42} />
               </Float>
+              )}
             </>
           )}
           <Sparkles

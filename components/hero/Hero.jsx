@@ -37,12 +37,12 @@ function SplitWords({ text, accentLast = false }) {
 }
 
 /** Original mascot (chess-pawn comedian), floating with mouse parallax. */
-function HeroCharacter({ src = "/images/hero-character.webp", alt = "SR Fan World mascot: a chess-pawn comedian with a microphone", unoptimized = false }) {
+function HeroCharacter({ src = "/images/hero-character.webp", alt = "SR Fan World mascot: a chess-pawn comedian with a microphone", unoptimized = false, photo = false }) {
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
   const x = useSpring(useTransform(mx, [-1, 1], [-18, 18]), { stiffness: 60, damping: 18 });
   const y = useSpring(useTransform(my, [-1, 1], [-12, 12]), { stiffness: 60, damping: 18 });
-  const rotate = useSpring(useTransform(mx, [-1, 1], [-4, 4]), { stiffness: 60, damping: 18 });
+  const rotate = useSpring(useTransform(mx, [-1, 1], photo ? [0, 0] : [-4, 4]), { stiffness: 60, damping: 18 });
 
   useEffect(() => {
     const onMove = (e) => {
@@ -54,14 +54,20 @@ function HeroCharacter({ src = "/images/hero-character.webp", alt = "SR Fan Worl
   }, [mx, my]);
 
   return (
-    <div className="pointer-events-none absolute bottom-[3%] right-[-10%] h-[36%] w-[55%] sm:right-0 sm:h-[48%] md:bottom-[6%] md:right-[4%] md:h-[78%] md:w-[48%]">
+    <div
+      className={`pointer-events-none absolute ${
+        photo
+          ? "bottom-0 right-[-14%] h-[44%] w-[62%] sm:right-0 sm:h-[54%] md:right-[1%] md:h-[90%] md:w-[46%]"
+          : "bottom-[3%] right-[-10%] h-[36%] w-[55%] sm:right-0 sm:h-[48%] md:bottom-[6%] md:right-[4%] md:h-[78%] md:w-[48%]"
+      }`}
+    >
       {/* stage glow + floor shadow */}
       <div className="absolute left-1/2 top-[38%] h-[70%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(255,46,63,.45),transparent)] blur-2xl" />
       <div className="absolute bottom-[2%] left-1/2 h-[6%] w-[46%] -translate-x-1/2 rounded-[50%] bg-black/50 blur-xl dark:bg-black/80" />
       <motion.div style={{ x, y, rotate }} className="relative h-full w-full">
         <motion.div
           className="relative h-full w-full"
-          animate={{ y: [0, -14, 0] }}
+          animate={{ y: photo ? [0, -6, 0] : [0, -14, 0] }}
           transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
         >
           <Image
@@ -148,9 +154,9 @@ export default function Hero({ content }) {
 
       {/* 3D scene or licensed portrait */}
       <div className="hero-scene absolute inset-0 opacity-60 md:opacity-100 md:left-[38%]">
-        {webgl && <HeroScene dark={isDark} compact={compact} showMic={false} />}
+        {webgl && <HeroScene dark={isDark} compact={compact} showMic={false} sidePawn={!content.heroImage} />}
         {content.heroImage ? (
-          <HeroCharacter src={content.heroImage} alt="Samay Raina" unoptimized={content.heroImage.startsWith("data:")} />
+          <HeroCharacter src={content.heroImage} alt="Samay Raina on stage with a microphone" unoptimized={content.heroImage.startsWith("data:")} photo />
         ) : (
           <HeroCharacter />
         )}
@@ -202,7 +208,7 @@ export default function Hero({ content }) {
           <p className="absolute bottom-4 right-6 text-[10px] text-muted">Photo: {content.heroImageCredit}</p>
         )}
 
-        <a
+        {!content.heroImage && <a
           href="#latest"
           className="hero-fade absolute bottom-8 right-6 md:right-10 hidden md:flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-muted hover:text-accent"
         >
@@ -210,7 +216,7 @@ export default function Hero({ content }) {
           <span className="grid h-10 w-10 place-items-center rounded-full border border-line animate-bounce">
             <ArrowDown size={15} />
           </span>
-        </a>
+        </a>}
       </div>
     </section>
   );
