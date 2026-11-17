@@ -10,6 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { SITE } from "@/lib/site";
 import { getSiteContent } from "@/lib/data";
+import { Analytics } from "@vercel/analytics/next";
 
 // Logo priority: 1) uploaded in /admin → Homepage → Site logo
 //                2) a file dropped into /public/images as logo.webp|png|jpg|jpeg
@@ -74,6 +75,7 @@ export default async function RootLayout({ children }) {
             {children}
           </SiteChrome>
         </Providers>
+          <Analytics />
       </body>
     </html>
   );
